@@ -5,56 +5,56 @@
       "forecast_units_7d": 289,
       "recommended_reorder_qty": 564,
       "risk": "HIGH",
-      "reason": "On-hand inventory (112) is well below the reorder point (323), and the 7-day forecast demand (289) exceeds current stock by 177 units. At the current average daily demand of 41.29 units, stock is likely to be depleted before the next week ends, so replenishment is needed now."
+      "reason": "On-hand inventory is 112 units, which is well below the reorder point of 323 units. The 7-day forecasted demand is 289 units, exceeding current stock by 177 units and indicating a likely stockout within the near term. Replenishment is needed now, and the recommended reorder quantity is 564 units."
     },
     "ELC-1003": {
       "sku": "ELC-1003",
       "forecast_units_7d": 416,
       "recommended_reorder_qty": 1332,
       "risk": "HIGH",
-      "reason": "On-hand inventory (183) is far below the reorder point (572) and below the 7-day forecast demand (416), indicating a likely stockout risk within the next week. Replenishment is needed now; the suggested reorder quantity is 1332 units per the provided reorder policy."
+      "reason": "On-hand inventory is 183 units, which is far below the reorder point of 572 units. The 7-day forecasted demand is 416 units, exceeding current stock by 233 units and indicating a likely stockout in the near term. Replenishment is needed now, and the recommended reorder quantity of 1332 units should be placed."
     },
     "ELC-1005": {
       "sku": "ELC-1005",
       "forecast_units_7d": 80,
       "recommended_reorder_qty": 175,
       "risk": "HIGH",
-      "reason": "On-hand inventory (53) is well below the reorder point (109) and below the 7-day forecast demand (80), indicating likely stockout risk within the next week. Replenishment is needed now; the suggested reorder quantity is 175 units."
+      "reason": "On-hand inventory is 53 units, which is well below the reorder point of 109 units. The 7-day forecasted demand is 80 units, exceeding current stock by 27 units and indicating a likely stockout in the near term. Replenishment is needed now, and the recommended reorder quantity is 175 units."
     },
     "ELC-1009": {
       "sku": "ELC-1009",
       "forecast_units_7d": 92,
       "recommended_reorder_qty": 175,
       "risk": "HIGH",
-      "reason": "On-hand inventory (16) is far below the reorder point (59) and well below the 7-day forecast demand (92 units). Expected demand over the next 7 days exceeds current stock by 76 units, indicating a strong near-term stockout risk. Replenishment is needed immediately; the suggested reorder quantity is 175 units."
+      "reason": "On-hand inventory is 16 units, which is well below the reorder point of 59 units. The 7-day forecasted demand is 92 units, exceeding current stock by 76 units, so the SKU is at high near-term stockout risk. Replenishment is needed now, and the recommended reorder quantity is 175 units."
     },
     "FSH-2003": {
       "sku": "FSH-2003",
       "forecast_units_7d": 294,
       "recommended_reorder_qty": 931,
       "risk": "HIGH",
-      "reason": "On-hand inventory is 121 units, which is well below the reorder point of 311. Expected demand over the next 7 days is 294 units, which exceeds current stock by 173 units, indicating a likely stockout risk before replenishment arrives. Replenishment is needed now, and the suggested reorder quantity is 931 units."
+      "reason": "On-hand inventory is 121 units, which is well below the reorder point of 311 units. The 7-day forecasted demand is 294 units, so current stock is likely to be exhausted before the next replenishment cycle completes. Replenishment is needed now, and the recommended reorder quantity of 931 units should be placed."
     },
     "FSH-2012": {
       "sku": "FSH-2012",
       "forecast_units_7d": 112,
       "recommended_reorder_qty": 113,
       "risk": "HIGH",
-      "reason": "Projected 7-day demand is 112 units versus only 32 units on hand, creating an expected shortfall of 80 units within the forecast window. Inventory is well below the reorder point of 82, so replenishment is needed immediately. The suggested reorder quantity is 113 units per policy."
+      "reason": "On-hand inventory is 32 units, which is far below the reorder point of 82 units. The 7-day forecasted demand is 112 units, so current stock is likely to be exhausted before the next replenishment cycle completes. Replenishment is needed now, and the recommended reorder quantity of 113 units should be placed."
     },
     "HOM-3004": {
       "sku": "HOM-3004",
       "forecast_units_7d": 399,
       "recommended_reorder_qty": 1219,
       "risk": "HIGH",
-      "reason": "On-hand inventory (288) is well below the reorder point (698) and below the 7-day forecast demand (399), indicating a likely stockout risk within the next week. Replenishment is needed now, and the suggested reorder quantity is 1219 units."
+      "reason": "On-hand inventory is 288 units, which is well below the reorder point of 698 units. The 7-day forecasted demand is 399 units, exceeding current stock by 111 units, so the SKU is at high near-term stockout risk and replenishment is needed now."
     },
     "HOM-3011": {
       "sku": "HOM-3011",
       "forecast_units_7d": 99,
       "recommended_reorder_qty": 165,
       "risk": "HIGH",
-      "reason": "On-hand inventory is 19 units, which is far below the reorder point of 71. Forecast demand over the next 7 days is 99 units, implying stockout risk well before the end of the horizon if no replenishment occurs. Replenishment is needed now; the suggested reorder quantity is 165 units."
+      "reason": "On-hand inventory is 19 units, which is far below the reorder point of 71 units. The 7-day forecasted demand is 99 units, meaning current stock is insufficient to cover near-term demand and is likely to stock out quickly. Replenishment is needed now, and the recommended reorder quantity is 165 units."
     }
   },
   "supplier_profiles": {
@@ -64,21 +64,10 @@
       "supplier_id": "SUP-08",
       "supplier": "Pacific Wholesale",
       "unit_cost": 33.17,
-      "total_cost": 18709.08,
+      "total_cost": 18707.88,
       "lead_time_days": 9,
-      "reason": "Pacific Wholesale is the best overall choice because it offers the lowest unit cost, the shortest lead time, and sufficient available quantity to fulfill the full order of 564 units. It also meets the MOQ and has slightly stronger reliability metrics than the alternative, making it the best balance of cost, speed, and fulfillment confidence."
-    }
-  },
-  "customer_profiles": {
-    "CUS-5019": {
-      "order_id": "ORD-90001",
-      "customer_id": "CUS-5019",
-      "message": "Dear Leo Ford, we\u2019re sorry to let you know that your order ORD-90001 for ELC-1003, originally promised for 2026-07-07, may be delayed due to a temporary stock shortage. We are actively expediting replenishment and working to fulfill your order as soon as possible. We apologize for the inconvenience and appreciate your patience."
-    },
-    "CUS-5024": {
-      "order_id": "ORD-90006",
-      "customer_id": "CUS-5024",
-      "message": "Dear Grace Perez, we\u2019re sorry to let you know that your order ORD-90006 for ELC-1003 may be delayed due to a temporary stock shortage. We are working to replenish inventory as quickly as possible and will keep you updated on any changes. We apologize for the inconvenience and appreciate your patience."
+      "reason": "Pacific Wholesale is the only available supplier quote that can cover the full quantity. It offers a competitive unit cost, acceptable 9-day lead time, and solid reliability (0.83) with sufficient available inventory (2000 units). The purchase order was built successfully; however, it requires human approval due to the total cost exceeding the approval threshold.",
+      "approval_required": true
     }
   }
 }

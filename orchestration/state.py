@@ -26,6 +26,13 @@ class SCMState(TypedDict, total=False):
     po_approved: Optional[bool]
     human_feedback: Optional[str]
 
+    # Exception escalation (UC-5) — set by any specialist agent that hits an
+    # ambiguous / high-risk situation it can't resolve on its own
+    # (e.g. no supplier can meet demand).
+    escalation_required: bool
+    escalation_payload: Dict[str, Any]
+    escalation_decision: Optional[str]
+
     # Logistics agent output
     logistics_result: Dict[str, Any]
 

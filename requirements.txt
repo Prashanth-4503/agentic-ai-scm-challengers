@@ -6,4 +6,6 @@ python-dotenv
 streamlit
 pandas
 numpy
-crewai 
+crewai[azure-ai-inference]
+chromadb
+requests

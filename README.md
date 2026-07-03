@@ -8,7 +8,7 @@ supply chain operations using **LangChain**, **LangGraph**, and **Azure OpenAI**
 ```
 User Query → Supervisor Agent (router)
                 ├── UC-1: Inventory Agent (single-agent Q&A)
-                ├── UC-2: Forecasting → Procurement → [HITL] (multi-agent)
+                ├── UC-2: Forecasting → Procurement → [HITL approval | UC-5 escalation] (multi-agent)
                 ├── UC-3: Logistics Agent (stretch)
                 └── UC-4: Customer Comms Agent (stretch)
              → Finalizer → Response
@@ -77,6 +77,30 @@ Notify customers about order delays caused by stock shortages.
 
 **Example:** `Notify customers about delayed SKU ELC-1003`
 
+### UC-5: Exception Escalation (Stretch)
+If the Procurement Agent finds that **no supplier can fully cover** the needed
+quantity for a SKU, it doesn't guess -- it pauses the graph (same `interrupt()`
+mechanism as HITL approval) and surfaces a summary plus recommended options
+(partial order, split across suppliers, web search for a new supplier, or
+reduce quantity) to the manager for a decision.
+
+**Try it:** run auto-replenishment and target `ELC-1003`, `ELC-1005`, or
+`FSH-2003` -- none of these currently have a single supplier in
+`data/supplier_catalog.csv` that covers the full `reorder_qty`, so the
+workflow escalates instead of placing a PO.
+
+### UC-5: Exception Escalation (Stretch)
+If the Procurement Agent finds that **no supplier can fully cover** the needed
+quantity for a SKU, it doesn't guess — it pauses the graph (same `interrupt()`
+mechanism as HITL approval) and surfaces a summary plus recommended options
+(partial order, split across suppliers, web search for a new supplier, or
+reduce quantity) to the manager for a decision.
+
+**Try it:** run auto-replenishment against `ELC-1003`, `ELC-1005`, or
+`FSH-2003` — none of these have a single supplier that covers the current
+`reorder_qty` in `data/supplier_catalog.csv`, so the workflow will escalate
+instead of placing a PO.
+
 ## Project Structure
 
 ```
@@ -111,11 +135,36 @@ hexashop-agentic-scm/
 ├── orchestration/
 │   ├── state.py              # SCMState TypedDict
 │   ├── graph.py              # LangGraph StateGraph
-│   └── hitl.py               # Human-in-the-loop interrupt
+│   ├── hitl.py               # Human-in-the-loop interrupt (UC-2)
+│   └── escalation.py         # Exception escalation interrupt (UC-5)
 └── utils/
     ├── config.py             # .env loading & LLM factory
-    └── logger.py             # Centralized logging
+    ├── logger.py             # Centralized logging
+    └── memory_store.py       # JSON entity/history store + Chroma semantic memory
 ```
+
+## Memory
+
+| Tier | Implementation | Notes |
+|---|---|---|
+| Short-term | LangGraph `SCMState` | Lives for the duration of one graph run/thread |
+| Entity | `memory/entity_memory.json` | SKU / supplier / customer profiles, keyed lookup |
+| Long-term / Semantic | Chroma (`memory/chroma/`), JSON fallback | Past forecasts & PO decisions, queried by similarity in `forecasting_agent` / `procurement_agent` via `semantic_recall()`. If `chromadb` isn't installed or can't initialise, this silently falls back to JSON-only history -- the graph never crashes because of it. |
+
+## Observability
+
+Set `VERBOSE_AGENTS=true` in `.env` before a demo to print full CrewAI
+agent/task reasoning traces to the console. Leave it `false` for normal runs
+to keep the log clean.
+
+## Resilience
+
+Every `crew.kickoff()` call is wrapped in `_run_crew()` (see
+`agents/crewai_agents.py`), which retries once on failure and falls back to a
+deterministic, tool-computed default (e.g. lowest-cost supplier, best
+ETA/cost carrier) if the LLM call keeps failing or returns unparseable
+output -- so a flaky Azure OpenAI call degrades a single agent's answer
+instead of crashing the whole graph.
 
 ## Environment Variables
 
@@ -126,7 +175,9 @@ hexashop-agentic-scm/
 | `AZURE_OPENAI_DEPLOYMENT` | Model deployment name | `gpt-5.4-mini` |
 | `AZURE_OPENAI_API_VERSION` | API version | `2024-12-01-preview` |
 | `PO_APPROVAL_THRESHOLD` | PO $ value requiring approval | `50000` |
+| `TAVILY_API_KEY` | Optional -- enables the Procurement Agent's web_search tool | -- |
 | `LOG_LEVEL` | Python log level | `INFO` |
+| `VERBOSE_AGENTS` | Print full CrewAI reasoning traces | `false` |
 
 ## Key Design Decisions
 

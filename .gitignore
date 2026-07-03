@@ -29,3 +29,7 @@ env/
 # Logs
 logs/
 *.log
+
+# Local memory / vector store data (regenerated at runtime)
+memory/*.json
+memory/chroma/

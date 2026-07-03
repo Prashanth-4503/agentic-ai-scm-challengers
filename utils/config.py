@@ -23,6 +23,10 @@ PO_APPROVAL_THRESHOLD = int(os.getenv("PO_APPROVAL_THRESHOLD", "50000"))
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
+# Show full CrewAI agent/task reasoning traces in the console (nice for demos,
+# noisy for normal runs) — toggle with VERBOSE_AGENTS=true in .env
+VERBOSE_AGENTS = os.getenv("VERBOSE_AGENTS", "false").strip().lower() in ("1", "true", "yes")
+
 
 def validate_config():
     """Raise if critical Azure settings are missing."""
