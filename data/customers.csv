@@ -1,0 +1,26 @@
+customer_id,customer_name,email,region,tier
+CUS-5000,Aarav Sharma,aarav.sharma@example.com,South,Standard
+CUS-5001,Diya Patel,diya.patel@example.com,South,Standard
+CUS-5002,Liam Smith,liam.smith@example.com,West,Standard
+CUS-5003,Sofia Garcia,sofia.garcia@example.com,West,Premium
+CUS-5004,Noah Chen,noah.chen@example.com,North,Standard
+CUS-5005,Mia Kim,mia.kim@example.com,West,Standard
+CUS-5006,Ethan Muller,ethan.muller@example.com,West,Standard
+CUS-5007,Ava Rossi,ava.rossi@example.com,West,Premium
+CUS-5008,Kenji Yilmaz,kenji.yilmaz@example.com,North,Standard
+CUS-5009,Yuki Nguyen,yuki.nguyen@example.com,North,Standard
+CUS-5010,Omar Khan,omar.khan@example.com,South,Standard
+CUS-5011,Lina Dubois,lina.dubois@example.com,North,Standard
+CUS-5012,Marco Costa,marco.costa@example.com,South,Standard
+CUS-5013,Elena Silva,elena.silva@example.com,West,Standard
+CUS-5014,Chloe Brown,chloe.brown@example.com,North,Standard
+CUS-5015,Ravi Reddy,ravi.reddy@example.com,North,Standard
+CUS-5016,Sara Ito,sara.ito@example.com,North,Standard
+CUS-5017,Tom Lee,tom.lee@example.com,North,Standard
+CUS-5018,Nina Kaur,nina.kaur@example.com,South,Standard
+CUS-5019,Leo Ford,leo.ford@example.com,North,Premium
+CUS-5020,Priya Mehta,priya.mehta@example.com,North,Standard
+CUS-5021,Jack Wong,jack.wong@example.com,South,Standard
+CUS-5022,Zoe Novak,zoe.novak@example.com,North,Standard
+CUS-5023,Ali Haddad,ali.haddad@example.com,North,Standard
+CUS-5024,Grace Perez,grace.perez@example.com,South,Premium

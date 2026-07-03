@@ -1,0 +1,9 @@
+supplier_id,supplier_name,country,specialty,reliability_score,on_time_rate,payment_terms,lead_time_status
+SUP-01,GlobalTech Components,China,Electronics,0.88,0.86,Net-30,On-time
+SUP-02,Shenzhen Direct,China,Electronics,0.82,0.79,Net-30,Delayed +6d
+SUP-03,EuroSource GmbH,Germany,Electronics/Home,0.96,0.95,Net-45,On-time
+SUP-04,Bharat Textiles,India,Fashion,0.9,0.88,Net-30,On-time
+SUP-05,Istanbul Apparel,Turkey,Fashion,0.85,0.83,Net-30,On-time
+SUP-06,HomeCraft Traders,Vietnam,Home,0.87,0.84,Net-30,On-time
+SUP-07,Prime US Distributors,USA,All,0.97,0.97,Net-15,On-time
+SUP-08,Pacific Wholesale,Malaysia,Home/Electronics,0.83,0.8,Net-30,On-time

@@ -1,0 +1,6 @@
+carrier_id,carrier_name,service_level,base_cost,cost_per_kg,eta_days,regions_covered,reliability
+CAR-01,SwiftShip Express,Express,6.5,1.2,2,"North,South,West",0.96
+CAR-02,EconoFreight,Economy,2.0,0.55,6,"North,South,West",0.9
+CAR-03,RegionRunner,Standard,3.2,0.8,3,"North,South",0.92
+CAR-04,GreenLine Logistics,Eco,2.6,0.65,5,"North,South,West",0.88
+CAR-05,PrimeCarrier,Premium,9.0,1.6,1,"North,West",0.98

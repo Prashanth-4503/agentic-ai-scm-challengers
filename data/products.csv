@@ -1,0 +1,37 @@
+sku,product_name,category,subcategory,brand,unit_price,weight_kg
+ELC-1001,Wireless Earbuds Pro,Electronics,Audio,Soniq,59.99,0.06
+ELC-1002,Bluetooth Speaker Mini,Electronics,Audio,Soniq,39.99,0.45
+ELC-1003,USB-C Fast Charger 65W,Electronics,Accessories,Voltix,24.99,0.15
+ELC-1004,Power Bank 20000mAh,Electronics,Accessories,Voltix,34.99,0.4
+ELC-1005,Smartwatch Active 2,Electronics,Wearables,Pulse,129.99,0.05
+ELC-1006,1080p Webcam,Electronics,Peripherals,ClearView,44.99,0.12
+ELC-1007,Mechanical Keyboard TKL,Electronics,Peripherals,KeyForge,79.99,0.9
+ELC-1008,Wireless Mouse Silent,Electronics,Peripherals,KeyForge,22.99,0.09
+ELC-1009,Noise-Cancelling Headphones,Electronics,Audio,Soniq,149.99,0.28
+ELC-1010,Smart LED Bulb (4-pack),Electronics,Smart Home,Lumos,29.99,0.3
+ELC-1011,HDMI 2.1 Cable 2m,Electronics,Accessories,Voltix,12.99,0.1
+ELC-1012,Aluminium Laptop Stand,Electronics,Accessories,DeskPro,32.99,0.7
+FSH-2001,Men's Running Shoes,Fashion,Footwear,Stride,64.99,0.55
+FSH-2002,Women's Sneakers,Fashion,Footwear,Stride,59.99,0.5
+FSH-2003,Cotton Crew T-Shirt,Fashion,Tops,UrbanThread,14.99,0.2
+FSH-2004,Denim Jacket,Fashion,Outerwear,UrbanThread,54.99,0.75
+FSH-2005,Leather Belt,Fashion,Accessories,Craftsman,24.99,0.25
+FSH-2006,Merino Wool Scarf,Fashion,Accessories,NordKnit,29.99,0.18
+FSH-2007,Baseball Cap,Fashion,Accessories,UrbanThread,17.99,0.12
+FSH-2008,Ankle Socks (5-pack),Fashion,Basics,UrbanThread,12.99,0.15
+FSH-2009,Yoga Leggings,Fashion,Activewear,FlexFit,34.99,0.22
+FSH-2010,Fleece Hoodie,Fashion,Tops,UrbanThread,44.99,0.6
+FSH-2011,Polarised Sunglasses,Fashion,Accessories,SunGuard,39.99,0.05
+FSH-2012,Canvas Backpack,Fashion,Bags,Voyage,49.99,0.65
+HOM-3001,Ceramic Mug Set (4),Home,Kitchen,Hearth,27.99,1.2
+HOM-3002,Non-stick Frying Pan 28cm,Home,Kitchen,Hearth,34.99,0.95
+HOM-3003,Bath Towel Set (6),Home,Bath,PureCotton,39.99,1.6
+HOM-3004,Soy Scented Candle,Home,Decor,Aura,16.99,0.35
+HOM-3005,Chunky Throw Blanket,Home,Decor,Cozy,44.99,1.3
+HOM-3006,Insulated Water Bottle 1L,Home,Kitchen,Hydra,22.99,0.35
+HOM-3007,Bamboo Desk Organizer,Home,Office,DeskPro,21.99,0.55
+HOM-3008,LED Desk Lamp Dimmable,Home,Office,Lumos,36.99,0.8
+HOM-3009,Storage Baskets (Set of 3),Home,Storage,TidyHome,29.99,0.9
+HOM-3010,Cotton Bedsheet Set Queen,Home,Bedroom,PureCotton,49.99,1.4
+HOM-3011,Kitchen Knife Set (5),Home,Kitchen,EdgePro,54.99,1.1
+HOM-3012,Silent Wall Clock 30cm,Home,Decor,Aura,19.99,0.6
