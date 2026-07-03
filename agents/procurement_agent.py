@@ -1,73 +1,78 @@
-import os
-from langchain_openai import AzureChatOpenAI
+"""
+Procurement Agent — selects suppliers and drafts purchase orders.
+Part of the UC-2 multi-agent pipeline.
+"""
+from tools.supplier_api import select_best_supplier
+from tools.calculator import build_purchase_order
+from utils.config import PO_APPROVAL_THRESHOLD
+from utils.logger import get_logger
 
-from dotenv import load_dotenv
-from tools.supplier_api import supplier_api, place_purchase_order
-from tools.calculator import calculate_total_cost
-from langgraph.types import interrupt
+log = get_logger(__name__)
 
-load_dotenv()
 
-po_approval = os.getenv("PO_APPROVAL_THRESHOLD")
-
-def procurement_agent(sku: str, quantity: int):
+def procurement_agent(state: dict) -> dict:
     """
-    Procurement Agent for purchasing materials from suppliers.
-    1.Fetch supplier information
-    2.Calculate total cost
-    3.Place purchase order
-    4.Check approval threshold
-    5.If above threshold, send to manager for approval
-    6.If below threshold, place purchase order
+    LangGraph node:
+    1. For each low-stock item from forecasting, find best supplier.
+    2. Draft a PO for the highest-priority SKU (the one with the biggest deficit).
+    3. Flag whether human approval is required.
     """
-
-    supplier_result = supplier_api.invoke({
-        "sku": sku,
-        "quantity": quantity
-    })
-
-    if supplier_result["status"] != "SUCCESS":
-        return supplier_result
-
-    best_supplier = supplier_result["quotes"][0]
-
-    total_cost = calculate_total_cost.invoke({
-        "quantity": quantity,
-        "unit_price": best_supplier["unit_cost"]
-    })
-
-    purchase_order = {
-        "supplier_id": best_supplier["supplier_id"],
-        "supplier_name": best_supplier["supplier_name"],
-        "sku": sku,
-        "quantity": quantity,
-        "unit_price": best_supplier["unit_cost"],
-        "total_cost": total_cost,
-        "lead_time_days": best_supplier["lead_time_days"]
-    }
-
-    if total_cost > po_approval:
-
-        approval = interrupt({
-            "type": "PO_APPROVAL",
-            "purchase_order": purchase_order,
-            "message": "Purchase Order exceeds approval threshold."
-        })
-
-        if not approval.get("approved", False):
+    try:
+        low_items = state.get("low_stock_items", [])
+        if not low_items:
             return {
-                "status": "REJECTED",
-                "message": "Purchase Order rejected.",
-                "purchase_order": purchase_order
+                "procurement_result": {"message": "No items to procure"},
+                "po_draft": {},
+                "po_approval_required": False,
             }
 
-    return place_purchase_order.invoke({
-        "po": purchase_order
-    })
+        # Sort by deficit descending — procure the most critical first
+        sorted_items = sorted(low_items, key=lambda x: x.get("deficit", 0), reverse=True)
+        top = sorted_items[0]
+        sku = top["sku"]
+        qty = top.get("recommended_order_qty", top.get("reorder_qty", 100))
 
+        # Find best supplier
+        supplier = select_best_supplier.invoke({"sku": sku, "qty_needed": qty})
+        if "error" in supplier:
+            log.warning("Supplier selection failed: %s", supplier["error"])
+            return {
+                "procurement_result": supplier,
+                "po_draft": {},
+                "po_approval_required": False,
+                "error": supplier["error"],
+            }
 
-if __name__ == "__main__":
+        # Build purchase order
+        po = build_purchase_order.invoke({
+            "sku": sku,
+            "qty": qty,
+            "supplier_id": supplier["supplier_id"],
+            "supplier_name": supplier["supplier_name"],
+            "unit_cost": supplier["unit_cost"],
+            "lead_time_days": supplier["lead_time_days"],
+        })
 
-    result = procurement_agent("LAP001", 100)
+        needs_approval = po.get("approval_required", False)
 
-    print(result)
+        log.info("PO drafted: %s × %d from %s — total $%.2f (approval=%s)",
+                 sku, qty, supplier["supplier_name"],
+                 po["total_cost"], needs_approval)
+
+        return {
+            "procurement_result": {
+                "status": "po_drafted",
+                "all_low_stock_skus": [i["sku"] for i in sorted_items],
+            },
+            "po_draft": po,
+            "po_approval_required": needs_approval,
+        }
+
+    except Exception as e:
+        log.error("Procurement agent error: %s", e)
+        return {
+            "procurement_result": {"error": str(e)},
+            "po_draft": {},
+            "po_approval_required": False,
+            "error": str(e),
+        }

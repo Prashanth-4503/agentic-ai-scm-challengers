@@ -1,137 +1,75 @@
+"""
+Supplier lookup tool — reads suppliers.csv and supplier_catalog.csv.
+Mocks an external supplier API.
+"""
 import pandas as pd
-from dotenv import load_dotenv
-from langchain.tools import tool
+from langchain_core.tools import tool
+from utils.config import DATA_DIR
+from utils.logger import get_logger
 
-load_dotenv()
+log = get_logger(__name__)
 
-CATALOG_PATH = "data/supplier_catalog.csv"
-SUPPLIERS_PATH = "data/suppliers.csv"
-
-
-@tool
-def supplier_api(sku: str, quantity: int):
-    """
-    Fetch supplier quotations for the given SKU and quantity.
-    Returns eligible suppliers sorted by:
-    1. Lowest unit cost
-    2. Shortest lead time
-    3. Highest reliability score
-    """
-
-    try:
-        # Load supplier catalog and supplier master
-        catalog_df = pd.read_csv(CATALOG_PATH)
-        supplier_df = pd.read_csv(SUPPLIERS_PATH)
-
-        # Filter by SKU
-        sku_info = catalog_df[catalog_df["sku"] == sku]
-
-        if sku_info.empty:
-            return {
-                "status": "FAILED",
-                "message": f"SKU '{sku}' not found."
-            }
-
-        # Check supplier eligibility
-        eligible = sku_info[
-            (sku_info["available_qty"] >= quantity) &
-            (quantity >= sku_info["moq"])
-        ]
-
-        if eligible.empty:
-            return {
-                "status": "FAILED",
-                "message": f"No supplier can fulfill {quantity} units of '{sku}'."
-            }
-
-        # Merge supplier information
-        supplier_data = eligible.merge(
-            supplier_df,
-            on="supplier_id",
-            how="left"
-        )
-
-        # Sort suppliers
-        supplier_data = supplier_data.sort_values(
-            by=["unit_cost", "lead_time_days", "reliability_score"],
-            ascending=[True, True, False]
-        )
-
-        return {
-            "status": "SUCCESS",
-            "sku": sku,
-            "requested_quantity": quantity,
-            "quotes": supplier_data.to_dict(orient="records")
-        }
-
-    except Exception as e:
-        return {
-            "status": "FAILED",
-            "message": str(e)
-        }
+_suppliers = pd.read_csv(DATA_DIR / "suppliers.csv")
+_catalog = pd.read_csv(DATA_DIR / "supplier_catalog.csv")
 
 
 @tool
-def place_purchase_order(po: dict):
+def get_suppliers_for_sku(sku: str) -> list[dict]:
     """
-    Mock Purchase Order API.
-    Called only after approval.
+    Return all suppliers that carry a given SKU, including unit_cost,
+    moq, lead_time_days, and available_qty, enriched with supplier name & reliability.
     """
-
-    try:
-        return {
-            "status": "SUCCESS",
-            "message": "Purchase Order placed successfully.",
-            "purchase_order": {
-                "supplier_id": po["supplier_id"],
-                "supplier_name": po["supplier_name"],
-                "sku": po["sku"],
-                "quantity": po["quantity"],
-                "unit_price": po["unit_price"],
-                "total_cost": po["total_cost"],
-                "lead_time_days": po["lead_time_days"]
-            }
-        }
-
-    except Exception as e:
-        return {
-            "status": "FAILED",
-            "message": str(e)
-        }
+    cat = _catalog[_catalog["sku"].str.upper() == sku.upper()].copy()
+    if cat.empty:
+        return [{"error": f"No suppliers found for SKU {sku}"}]
+    merged = cat.merge(_suppliers, on="supplier_id", how="left")
+    cols = ["supplier_id", "supplier_name", "sku", "unit_cost", "moq",
+            "lead_time_days", "available_qty", "reliability_score", "on_time_rate"]
+    log.info("Found %d supplier options for %s", len(merged), sku)
+    return merged[cols].to_dict(orient="records")
 
 
-if __name__ == "__main__":
+@tool
+def select_best_supplier(sku: str, qty_needed: int) -> dict:
+    """
+    Pick the best supplier for a SKU based on:
+      1. Can fulfil qty_needed (available_qty >= qty_needed and qty_needed >= moq)
+      2. Highest reliability_score
+      3. Lowest unit_cost as tiebreaker
+    Returns the selected supplier row or an error.
+    """
+    cat = _catalog[_catalog["sku"].str.upper() == sku.upper()].copy()
+    if cat.empty:
+        return {"error": f"No suppliers for SKU {sku}"}
 
-    # Display available SKUs
-    catalog = pd.read_csv(CATALOG_PATH)
-    print("Available SKUs:")
-    print(catalog["sku"].unique())
+    merged = cat.merge(_suppliers, on="supplier_id", how="left")
 
-    # Replace with a valid SKU from the output above
-    result = supplier_api.invoke(
-        {
-            "sku": "LAP001",
-            "quantity": 100
-        }
-    )
+    # Filter: supplier can fulfil the order
+    eligible = merged[
+        (merged["available_qty"] >= qty_needed) &
+        (qty_needed >= merged["moq"])
+    ]
+    if eligible.empty:
+        # Fall back: relax MOQ constraint, just pick by availability
+        eligible = merged[merged["available_qty"] >= qty_needed]
+    if eligible.empty:
+        return {"error": f"No supplier can fulfil {qty_needed} units of {sku}"}
 
-    print("\nSupplier Quotes:\n")
-    print(result)
+    # Rank: best reliability, then lowest cost
+    best = eligible.sort_values(
+        ["reliability_score", "unit_cost"], ascending=[False, True]
+    ).iloc[0]
 
-    # Test PO placement
-    if result["status"] == "SUCCESS":
-
-        best_supplier = result["quotes"][0]
-
-        po = {
-            "supplier_id": best_supplier["supplier_id"],
-            "supplier_name": best_supplier["supplier_name"],
-            "sku": "LAP001",
-            "quantity": 100,
-            "unit_price": best_supplier["unit_cost"],
-            "total_cost": best_supplier["unit_cost"] * 100,
-            "lead_time_days": best_supplier["lead_time_days"]
-        }
-
-        print("\nPurchase Order Placement:\n")
-        print(place_purchase_order.invoke({"po": po}))
+    result = {
+        "supplier_id": best["supplier_id"],
+        "supplier_name": best["supplier_name"],
+        "sku": sku.upper(),
+        "unit_cost": float(best["unit_cost"]),
+        "moq": int(best["moq"]),
+        "lead_time_days": int(best["lead_time_days"]),
+        "available_qty": int(best["available_qty"]),
+        "reliability_score": float(best["reliability_score"]),
+    }
+    log.info("Selected supplier %s for %s @ $%.2f",
+             result["supplier_name"], sku, result["unit_cost"])
+    return result

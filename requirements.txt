@@ -1,0 +1,9 @@
+langchain
+langchain-openai
+langgraph
+openai
+python-dotenv
+streamlit
+pandas
+numpy
+crewai 
