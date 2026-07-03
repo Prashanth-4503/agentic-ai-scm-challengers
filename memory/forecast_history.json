@@ -1,0 +1,114 @@
+[
+  {
+    "sku": "ELC-1001",
+    "forecast_units_7d": 289,
+    "recommended_reorder_qty": 564,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (112) is well below the reorder point (323), and the 7-day forecast demand (289) exceeds current stock by 177 units. This indicates a high near-term stockout risk, so replenishment is needed immediately."
+  },
+  {
+    "sku": "ELC-1003",
+    "forecast_units_7d": 416,
+    "recommended_reorder_qty": 1332,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (183) is far below the reorder point (572) and below the 7-day forecast demand (416), indicating a strong near-term stockout risk. Replenishment is needed now, and the suggested reorder quantity is 1332 units."
+  },
+  {
+    "sku": "ELC-1005",
+    "forecast_units_7d": 80,
+    "recommended_reorder_qty": 175,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 53 units, which is well below the reorder point of 109. Forecast demand over the next 7 days is 80 units, exceeding current stock and indicating likely stockout risk before the end of the horizon. Replenishment is needed now; the suggested reorder quantity is 175 units."
+  },
+  {
+    "sku": "ELC-1009",
+    "forecast_units_7d": 92,
+    "recommended_reorder_qty": 175,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 16 units, which is far below the reorder point of 59 and well below the 7-day forecast demand of 92 units. At the current demand rate, stock is likely to be depleted before the next 7 days are covered, so replenishment is needed immediately. The suggested reorder quantity remains 175 units."
+  },
+  {
+    "sku": "FSH-2003",
+    "forecast_units_7d": 294,
+    "recommended_reorder_qty": 931,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (121) is well below the reorder point (311), indicating immediate replenishment need. Expected demand over the next 7 days is 294 units, which exceeds current stock by 173 units, creating a high near-term stockout risk."
+  },
+  {
+    "sku": "FSH-2012",
+    "forecast_units_7d": 112,
+    "recommended_reorder_qty": 113,
+    "risk": "HIGH",
+    "reason": "Projected 7-day demand is 112 units versus only 32 units on hand, creating an expected shortfall of 80 units within the forecast window. Inventory is well below the reorder point of 82, so replenishment is needed immediately. The suggested reorder quantity is 113 units."
+  },
+  {
+    "sku": "HOM-3004",
+    "forecast_units_7d": 399,
+    "recommended_reorder_qty": 1219,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 288 units, which is far below the reorder point of 698 and below the 7-day forecast demand of 399 units. Expected demand over the next 7 days exceeds current stock by 111 units, indicating a likely stockout risk before replenishment arrives. Replenishment is needed now, and the suggested reorder quantity is 1219 units."
+  },
+  {
+    "sku": "HOM-3011",
+    "forecast_units_7d": 99,
+    "recommended_reorder_qty": 165,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 19 units, which is far below the reorder point of 71. Expected demand over the next 7 days is 99 units, so current stock is likely to be depleted well before the forecast horizon ends. Replenishment is needed immediately, and the suggested reorder quantity is 165 units."
+  },
+  {
+    "sku": "ELC-1001",
+    "forecast_units_7d": 289,
+    "recommended_reorder_qty": 564,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (112) is well below the reorder point (323), and the 7-day forecast demand (289) exceeds current stock by 177 units. At the current average daily demand of 41.29 units, stock is likely to be depleted before the next week ends, so replenishment is needed now."
+  },
+  {
+    "sku": "ELC-1003",
+    "forecast_units_7d": 416,
+    "recommended_reorder_qty": 1332,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (183) is far below the reorder point (572) and below the 7-day forecast demand (416), indicating a likely stockout risk within the next week. Replenishment is needed now; the suggested reorder quantity is 1332 units per the provided reorder policy."
+  },
+  {
+    "sku": "ELC-1005",
+    "forecast_units_7d": 80,
+    "recommended_reorder_qty": 175,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (53) is well below the reorder point (109) and below the 7-day forecast demand (80), indicating likely stockout risk within the next week. Replenishment is needed now; the suggested reorder quantity is 175 units."
+  },
+  {
+    "sku": "ELC-1009",
+    "forecast_units_7d": 92,
+    "recommended_reorder_qty": 175,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (16) is far below the reorder point (59) and well below the 7-day forecast demand (92 units). Expected demand over the next 7 days exceeds current stock by 76 units, indicating a strong near-term stockout risk. Replenishment is needed immediately; the suggested reorder quantity is 175 units."
+  },
+  {
+    "sku": "FSH-2003",
+    "forecast_units_7d": 294,
+    "recommended_reorder_qty": 931,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 121 units, which is well below the reorder point of 311. Expected demand over the next 7 days is 294 units, which exceeds current stock by 173 units, indicating a likely stockout risk before replenishment arrives. Replenishment is needed now, and the suggested reorder quantity is 931 units."
+  },
+  {
+    "sku": "FSH-2012",
+    "forecast_units_7d": 112,
+    "recommended_reorder_qty": 113,
+    "risk": "HIGH",
+    "reason": "Projected 7-day demand is 112 units versus only 32 units on hand, creating an expected shortfall of 80 units within the forecast window. Inventory is well below the reorder point of 82, so replenishment is needed immediately. The suggested reorder quantity is 113 units per policy."
+  },
+  {
+    "sku": "HOM-3004",
+    "forecast_units_7d": 399,
+    "recommended_reorder_qty": 1219,
+    "risk": "HIGH",
+    "reason": "On-hand inventory (288) is well below the reorder point (698) and below the 7-day forecast demand (399), indicating a likely stockout risk within the next week. Replenishment is needed now, and the suggested reorder quantity is 1219 units."
+  },
+  {
+    "sku": "HOM-3011",
+    "forecast_units_7d": 99,
+    "recommended_reorder_qty": 165,
+    "risk": "HIGH",
+    "reason": "On-hand inventory is 19 units, which is far below the reorder point of 71. Forecast demand over the next 7 days is 99 units, implying stockout risk well before the end of the horizon if no replenishment occurs. Replenishment is needed now; the suggested reorder quantity is 165 units."
+  }
+]

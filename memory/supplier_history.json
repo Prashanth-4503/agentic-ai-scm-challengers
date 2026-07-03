@@ -1,0 +1,22 @@
+[
+  {
+    "sku": "ELC-1001",
+    "qty": 564,
+    "supplier_id": "SUP-08",
+    "supplier": "Pacific Wholesale",
+    "unit_cost": 33.17,
+    "total_cost": 18709.08,
+    "lead_time_days": 9,
+    "reason": "Pacific Wholesale is the best overall choice because it offers the lowest unit cost, the shortest lead time, and sufficient available quantity to fulfill the full order of 564 units. Its reliability metrics are slightly stronger than the alternative, and it meets the MOQ without issue."
+  },
+  {
+    "sku": "ELC-1001",
+    "qty": 564,
+    "supplier_id": "SUP-08",
+    "supplier": "Pacific Wholesale",
+    "unit_cost": 33.17,
+    "total_cost": 18709.08,
+    "lead_time_days": 9,
+    "reason": "Pacific Wholesale is the best overall choice because it offers the lowest unit cost, the shortest lead time, and sufficient available quantity to fulfill the full order of 564 units. It also meets the MOQ and has slightly stronger reliability metrics than the alternative, making it the best balance of cost, speed, and fulfillment confidence."
+  }
+]
