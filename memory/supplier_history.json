@@ -20,5 +20,16 @@
     "lead_time_days": 9,
     "reason": "Pacific Wholesale is the only available supplier quote that can cover the full quantity. It offers a competitive unit cost, acceptable 9-day lead time, and solid reliability (0.83) with sufficient available inventory (2000 units). The purchase order was built successfully; however, it requires human approval due to the total cost exceeding the approval threshold.",
     "approval_required": true
+  },
+  {
+    "sku": "ELC-1001",
+    "qty": 564,
+    "supplier_id": "SUP-08",
+    "supplier": "Pacific Wholesale",
+    "unit_cost": 33.17,
+    "total_cost": 18707.88,
+    "lead_time_days": 9,
+    "reason": "Pacific Wholesale is the only available supplier quote that can cover the full quantity. It offers a competitive unit cost, acceptable 9-day lead time, and solid reliability (0.83) with sufficient available inventory (2000 units). The purchase order was built successfully and requires human approval due to the total cost exceeding the approval threshold.",
+    "approval_required": true
   }
 ]

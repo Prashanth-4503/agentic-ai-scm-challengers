@@ -53,6 +53,7 @@ from utils.memory_store import (
     semantic_recall,
 )
 from utils.logger import get_logger
+from utils.prompt_loader import get_agent_prompt, get_task_prompt
 
 log = get_logger(__name__)
 
@@ -74,6 +75,10 @@ def _run_crew(crew: Crew, fallback: dict, context: str = ""):
     agent node can still return a valid partial state and the graph keeps
     running (resilience requirement).
     """
+    # Dynamically resolve agent name from context, e.g. "inventory_agent" or "forecasting_agent[SKU-1001]"
+    agent_name = context.split("[")[0] if context else "app"
+    logger = get_logger(agent_name)
+
     last_err = None
     for attempt in range(1, _MAX_RETRIES + 1):
         try:
@@ -82,16 +87,16 @@ def _run_crew(crew: Crew, fallback: dict, context: str = ""):
             parsed = _safe_json_parse(str(raw_text))
             if parsed:
                 return parsed, False
-            log.warning("%s: crew returned non-JSON output, using fallback.", context)
+            logger.warning("%s: crew returned non-JSON output, using fallback.", context)
             return dict(fallback), True
         except Exception as e:
             last_err = e
-            log.warning("%s: crew.kickoff() failed (attempt %d/%d): %s",
-                        context, attempt, _MAX_RETRIES, e)
+            logger.warning("%s: crew.kickoff() failed (attempt %d/%d): %s",
+                           context, attempt, _MAX_RETRIES, e)
             time.sleep(0.5 * attempt)
 
-    log.error("%s: all retries exhausted (%s), falling back to safe default.",
-              context, last_err)
+    logger.error("%s: all retries exhausted (%s), falling back to safe default.",
+                 context, last_err)
     return dict(fallback), True
 
 
@@ -134,34 +139,27 @@ def inventory_agent(state):
     else:
         inventory_data = search_inventory.invoke({"query": question})
 
+    agent_prompt = get_agent_prompt("inventory_agent")
     inventory_specialist = Agent(
-        role="Inventory Monitoring Agent",
-        goal="Answer inventory questions using only tool-grounded stock data",
-        backstory="You are a careful inventory analyst. You never invent stock numbers.",
+        role=agent_prompt.get("role", "Inventory Monitoring Agent"),
+        goal=agent_prompt.get("goal", "Answer inventory questions using only tool-grounded stock data"),
+        backstory=agent_prompt.get("backstory", "You are a careful inventory analyst. You never invent stock numbers."),
         tools=to_crewai_tools([get_inventory_summary, get_low_stock_items, get_sku_detail, search_inventory]),
         llm=llm,
         verbose=VERBOSE_AGENTS,
     )
 
+    task_prompt = get_task_prompt("inventory_task")
+    description_template = task_prompt.get("description", "")
+    description = description_template.format(
+        question=question,
+        inventory_data=json.dumps(inventory_data, indent=2)
+    )
+
     task = Task(
-        description=f"""
-Answer the manager question using ONLY grounded inventory data. Use your
-tools if you need to double-check a number — never guess.
-
-Question:
-{question}
-
-Inventory data already retrieved for you:
-{json.dumps(inventory_data, indent=2)}
-
-Return JSON with:
-{{
-  "answer": "...",
-  "records": [...]
-}}
-""",
+        description=description,
         agent=inventory_specialist,
-        expected_output='JSON with "answer" and "records"',
+        expected_output=task_prompt.get("expected_output", 'JSON with "answer" and "records"'),
     )
 
     crew = Crew(agents=[inventory_specialist], tasks=[task],
@@ -187,10 +185,11 @@ def forecasting_agent(state):
 
     enriched = []
 
+    agent_prompt = get_agent_prompt("forecasting_agent")
     forecasting_specialist = Agent(
-        role="Demand Forecasting Agent",
-        goal="Predict short-term demand risk for low-stock SKUs",
-        backstory="You analyze recent sales history and identify likely replenishment needs.",
+        role=agent_prompt.get("role", "Demand Forecasting Agent"),
+        goal=agent_prompt.get("goal", "Predict short-term demand risk for low-stock SKUs"),
+        backstory=agent_prompt.get("backstory", "You analyze recent sales history and identify likely replenishment needs."),
         tools=to_crewai_tools([forecast_demand]),
         llm=llm,
         verbose=VERBOSE_AGENTS,
@@ -213,25 +212,17 @@ def forecasting_agent(state):
             "similar_past_forecasts": similar_past,
         }
 
+        task_prompt = get_task_prompt("forecasting_task")
+        description_template = task_prompt.get("description", "")
+        description = description_template.format(
+            payload=json.dumps(payload, indent=2),
+            sku=sku
+        )
+
         task = Task(
-            description=f"""
-Analyze this SKU's near-term demand risk and summarize whether replenishment is needed.
-You have access to a forecast_demand tool if you want to re-check with different windows.
-
-Data:
-{json.dumps(payload, indent=2)}
-
-Return JSON:
-{{
-  "sku": "{sku}",
-  "forecast_units_7d": number,
-  "recommended_reorder_qty": number,
-  "risk": "LOW|MEDIUM|HIGH",
-  "reason": "..."
-}}
-""",
+            description=description,
             agent=forecasting_specialist,
-            expected_output="JSON demand assessment",
+            expected_output=task_prompt.get("expected_output", "JSON demand assessment"),
         )
 
         crew = Crew(agents=[forecasting_specialist], tasks=[task],
@@ -259,6 +250,7 @@ Return JSON:
 # ── Procurement Agent (UC-2, step 2) ──────────────────────────────────
 
 def procurement_agent(state):
+    log = get_logger("procurement_agent")
     items = state.get("low_stock_items", [])
 
     if not items:
@@ -312,49 +304,30 @@ def procurement_agent(state):
     supplier_history = get_supplier_history(sku=sku)
     similar_past = semantic_recall("supplier_decisions", f"purchase order for SKU {sku}", n_results=2)
 
+    agent_prompt = get_agent_prompt("procurement_agent")
     procurement_specialist = Agent(
-        role="Procurement Specialist",
-        goal="Choose the best supplier and draft a purchase order",
-        backstory="You optimize cost, lead time, and reliability without overspending.",
+        role=agent_prompt.get("role", "Procurement Specialist"),
+        goal=agent_prompt.get("goal", "Choose the best supplier and draft a purchase order"),
+        backstory=agent_prompt.get("backstory", "You optimize cost, lead time, and reliability without overspending."),
         tools=to_crewai_tools([get_suppliers_for_sku, build_purchase_order, web_search]),
         llm=llm,
         verbose=VERBOSE_AGENTS,
     )
 
+    task_prompt = get_task_prompt("procurement_task")
+    description_template = task_prompt.get("description", "")
+    description = description_template.format(
+        sku=sku,
+        needed_qty=needed_qty,
+        valid_quotes=json.dumps(valid_quotes, indent=2),
+        supplier_history=json.dumps(supplier_history, indent=2),
+        similar_past=json.dumps(similar_past, indent=2)
+    )
+
     task = Task(
-        description=f"""
-Choose the best supplier for this SKU and draft a purchase order. Use the
-build_purchase_order tool to compute total_cost and the approval flag once
-you've picked a supplier — do not compute the total yourself. If the catalog
-quotes look insufficient or you want a market-price sanity check, you may use
-web_search.
-
-SKU: {sku}
-Needed Qty: {needed_qty}
-
-Available supplier quotes (already filtered to ones that can cover the qty):
-{json.dumps(valid_quotes, indent=2)}
-
-Past supplier history for this SKU:
-{json.dumps(supplier_history, indent=2)}
-
-Similar past purchase-order decisions (long-term memory):
-{json.dumps(similar_past, indent=2)}
-
-Return strict JSON:
-{{
-  "sku": "{sku}",
-  "qty": number,
-  "supplier_id": "...",
-  "supplier": "...",
-  "unit_cost": number,
-  "total_cost": number,
-  "lead_time_days": number,
-  "reason": "..."
-}}
-""",
+        description=description,
         agent=procurement_specialist,
-        expected_output="PO draft JSON",
+        expected_output=task_prompt.get("expected_output", "PO draft JSON"),
     )
 
     crew = Crew(agents=[procurement_specialist], tasks=[task],
@@ -405,6 +378,7 @@ Return strict JSON:
 # ── Logistics Agent (UC-3) ────────────────────────────────────────────
 
 def logistics_agent(state):
+    log = get_logger("logistics_agent")
     orders = state.get("orders_batch", [])
 
     if not orders:
@@ -438,10 +412,11 @@ def logistics_agent(state):
                 "weight_kg": 2.0,
             }]
 
+    agent_prompt = get_agent_prompt("logistics_agent")
     logistics_specialist = Agent(
-        role="Logistics & Routing Agent",
-        goal="Choose the best shipping option balancing cost and ETA",
-        backstory="You optimize shipping plans for pending orders across regions.",
+        role=agent_prompt.get("role", "Logistics & Routing Agent"),
+        goal=agent_prompt.get("goal", "Choose the best shipping option balancing cost and ETA"),
+        backstory=agent_prompt.get("backstory", "You optimize shipping plans for pending orders across regions."),
         tools=to_crewai_tools([get_shipping_options]),
         llm=llm,
         verbose=VERBOSE_AGENTS,
@@ -455,27 +430,18 @@ def logistics_agent(state):
             "weight_kg": order.get("weight_kg", 1.0),
         })
 
+        task_prompt = get_task_prompt("logistics_task")
+        description_template = task_prompt.get("description", "")
+        description = description_template.format(
+            order=json.dumps(order, indent=2),
+            options=json.dumps(options, indent=2),
+            order_id=order['order_id']
+        )
+
         task = Task(
-            description=f"""
-Choose the best carrier for this order.
-
-Order:
-{json.dumps(order, indent=2)}
-
-Shipping options:
-{json.dumps(options, indent=2)}
-
-Return JSON:
-{{
-  "order_id": "{order['order_id']}",
-  "selected_carrier": "...",
-  "cost": number,
-  "eta_days": number,
-  "reason": "..."
-}}
-""",
+            description=description,
             agent=logistics_specialist,
-            expected_output="Shipping choice JSON",
+            expected_output=task_prompt.get("expected_output", "Shipping choice JSON"),
         )
 
         crew = Crew(agents=[logistics_specialist], tasks=[task],
@@ -545,10 +511,11 @@ def customer_comms_agent(state):
             "final_response": "No delay notifications needed — no affected customer orders found.",
         }
 
+    agent_prompt = get_agent_prompt("customer_comms_agent")
     comms_specialist = Agent(
-        role="Customer Communications Agent",
-        goal="Draft clear, empathetic customer delay messages",
-        backstory="You write concise, trustworthy updates for customers affected by supply delays.",
+        role=agent_prompt.get("role", "Customer Communications Agent"),
+        goal=agent_prompt.get("goal", "Draft clear, empathetic customer delay messages"),
+        backstory=agent_prompt.get("backstory", "You write concise, trustworthy updates for customers affected by supply delays."),
         tools=to_crewai_tools([draft_delay_message]),
         llm=llm,
         verbose=VERBOSE_AGENTS,
@@ -559,25 +526,19 @@ def customer_comms_agent(state):
     for order in impacted_orders:
         base_message = draft_delay_message.invoke({"order": order})
 
+        task_prompt = get_task_prompt("customer_comms_task")
+        description_template = task_prompt.get("description", "")
+        description = description_template.format(
+            order=json.dumps(order, indent=2),
+            base_message=base_message,
+            order_id=order['order_id'],
+            customer_id=order['customer_id']
+        )
+
         task = Task(
-            description=f"""
-Rewrite this delay message to be clear, empathetic, and professional.
-
-Order data:
-{json.dumps(order, indent=2)}
-
-Base draft:
-{base_message}
-
-Return JSON:
-{{
-  "order_id": "{order['order_id']}",
-  "customer_id": "{order['customer_id']}",
-  "message": "..."
-}}
-""",
+            description=description,
             agent=comms_specialist,
-            expected_output="Customer message JSON",
+            expected_output=task_prompt.get("expected_output", "Customer message JSON"),
         )
 
         crew = Crew(agents=[comms_specialist], tasks=[task],

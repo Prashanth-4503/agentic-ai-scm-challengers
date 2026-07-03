@@ -1,0 +1,106 @@
+inventory_task:
+  description: |
+    Answer the manager question using ONLY grounded inventory data. Use your
+    tools if you need to double-check a number — never guess.
+
+    Question:
+    {question}
+
+    Inventory data already retrieved for you:
+    {inventory_data}
+
+    Return JSON with:
+    {{
+      "answer": "...",
+      "records": [...]
+    }}
+  expected_output: 'JSON with "answer" and "records"'
+
+forecasting_task:
+  description: |
+    Analyze this SKU's near-term demand risk and summarize whether replenishment is needed.
+    You have access to a forecast_demand tool if you want to re-check with different windows.
+
+    Data:
+    {payload}
+
+    Return JSON:
+    {{
+      "sku": "{sku}",
+      "forecast_units_7d": number,
+      "recommended_reorder_qty": number,
+      "risk": "LOW|MEDIUM|HIGH",
+      "reason": "..."
+    }}
+  expected_output: "JSON demand assessment"
+
+procurement_task:
+  description: |
+    Choose the best supplier for this SKU and draft a purchase order. Use the
+    build_purchase_order tool to compute total_cost and the approval flag once
+    you've picked a supplier — do not compute the total yourself. If the catalog
+    quotes look insufficient or you want a market-price sanity check, you may use
+    web_search.
+
+    SKU: {sku}
+    Needed Qty: {needed_qty}
+
+    Available supplier quotes (already filtered to ones that can cover the qty):
+    {valid_quotes}
+
+    Past supplier history for this SKU:
+    {supplier_history}
+
+    Similar past purchase-order decisions (long-term memory):
+    {similar_past}
+
+    Return strict JSON:
+    {{
+      "sku": "{sku}",
+      "qty": number,
+      "supplier_id": "...",
+      "supplier": "...",
+      "unit_cost": number,
+      "total_cost": number,
+      "lead_time_days": number,
+      "reason": "..."
+    }}
+  expected_output: "PO draft JSON"
+
+logistics_task:
+  description: |
+    Choose the best carrier for this order.
+
+    Order:
+    {order}
+
+    Shipping options:
+    {options}
+
+    Return JSON:
+    {{
+      "order_id": "{order_id}",
+      "selected_carrier": "...",
+      "cost": number,
+      "eta_days": number,
+      "reason": "..."
+    }}
+  expected_output: "Shipping choice JSON"
+
+customer_comms_task:
+  description: |
+    Rewrite this delay message to be clear, empathetic, and professional.
+
+    Order data:
+    {order}
+
+    Base draft:
+    {base_message}
+
+    Return JSON:
+    {{
+      "order_id": "{order_id}",
+      "customer_id": "{customer_id}",
+      "message": "..."
+    }}
+  expected_output: "Customer message JSON"

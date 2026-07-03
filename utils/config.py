@@ -22,6 +22,14 @@ PO_APPROVAL_THRESHOLD = int(os.getenv("PO_APPROVAL_THRESHOLD", "50000"))
 
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+FILE_LOGGING = os.getenv("FILE_LOGGING", "true").strip().lower() in ("1", "true", "yes")
+
+# Base log directory configuration
+LOG_DIR_PATH = os.getenv("LOG_DIR", "logs")
+if Path(LOG_DIR_PATH).is_absolute():
+    LOG_DIR = Path(LOG_DIR_PATH)
+else:
+    LOG_DIR = BASE_DIR / LOG_DIR_PATH
 
 # Show full CrewAI agent/task reasoning traces in the console (nice for demos,
 # noisy for normal runs) — toggle with VERBOSE_AGENTS=true in .env
